@@ -1,0 +1,85 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+const int trigPin = 9;
+const int echoPin = 10;
+
+const int butonX = 2;
+const int butonY = 3;
+const int butonZ = 4;
+
+float X = 0;
+float Y = 0;
+float Z = 0;
+const float sabitMesafe = 36.0;
+
+void setup() {
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  
+  pinMode(butonX, INPUT_PULLUP);
+  pinMode(butonY, INPUT_PULLUP);
+  pinMode(butonZ, INPUT_PULLUP);
+
+  lcd.init();
+  lcd.backlight();
+  
+  lcd.setCursor(0, 0);
+  lcd.print("Hacim Hesaplama");
+}
+
+void loop() {
+  if (digitalRead(butonX) == LOW) {
+    X = kalinlikHesapla();
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("X kalinlik = ");
+    lcd.print(X);
+    lcd.print(" cm");
+    delay(1000);
+  }
+
+  if (digitalRead(butonY) == LOW) {
+    Y = kalinlikHesapla();
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Y kalinlik = ");
+    lcd.print(Y);
+    lcd.print(" cm");
+    delay(1000);
+  }
+
+  if (digitalRead(butonZ) == LOW) {
+    Z = kalinlikHesapla();
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Z kalinlik = ");
+    lcd.print(Z);
+    lcd.print(" cm");
+    delay(1000);
+
+    float hacim = X * Y * Z;
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Hacim=");
+    lcd.print(hacim);
+    lcd.print("cm3");
+    delay(2000);
+  }
+}
+
+float kalinlikHesapla() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  
+  long sure = pulseIn(echoPin, HIGH);
+  float mesafe = sure * 0.034 / 2;
+  float kalinlik = sabitMesafe - mesafe;
+
+  return (kalinlik > 0) ? kalinlik : 0;
+}
